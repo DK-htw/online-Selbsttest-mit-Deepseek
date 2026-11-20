@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTW Dresden – WiWi-Ordnungstest</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 2rem auto; padding: 1rem; background: #f9f9f9; }
+        h1 { color: #003366; }
+        .frage { margin-bottom: 1.5rem; padding: 1rem; background: #fff; border-left: 4px solid #003366; }
+        .frage p { margin: 0 0 0.5rem 0; font-weight: bold; }
+        label { display: block; margin: 0.3rem 0; cursor: pointer; }
+        button { background: #003366; color: #fff; border: none; padding: 0.8rem 2rem; font-size: 1.1rem; cursor: pointer; border-radius: 4px; }
+        button:hover { background: #0055a4; }
+        #ergebnis { margin-top: 1.5rem; font-size: 1.2rem; font-weight: bold; }
+        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; display: none; }
+    </style>
+</head>
+<body>
+
+<h1>🎓 HTW Dresden – WiWi-Ordnungstest</h1>
+<p>Beantworte die 15 Fragen zu den aktuellen Studien- und Prüfungsordnungen der Fakultät Wirtschaftswissenschaften. Mindestens 8 richtige Antworten (≥ 50 %) führen zum Bestehen – und zu einem Feuerwerk! 🎆</p>
+
+<form id="quiz">
+    <!-- Fragen werden per JavaScript eingefügt -->
+</form>
+
+<button type="button" id="auswerten">Test auswerten</button>
+
+<div id="ergebnis"></div>
+
+<canvas id="feuerwerk"></canvas>
+
+<script>
+    const fragen = [
+        {
+            frage: "Wie viele ECTS-Credits umfasst der Bachelorstudiengang Betriebswirtschaft (B.A.) insgesamt?",
+            antworten: ["180", "210", "240", "300"],
+            richtig: 1 // Index 1 = B (210)
+        },
+        {
+            frage: "Wie viele Semester Regelstudienzeit hat der Bachelorstudiengang International Business (B.A.)?",
+            antworten: ["6 Semester", "7 Semester", "8 Semester", "4 Semester"],
+            richtig: 1 // 7 Semester
+        },
+        {
+            frage: "Welcher Abschluss wird im Studiengang Wirtschaftsingenieurwesen (B.Eng.) verliehen?",
+            antworten: ["Bachelor of Arts", "Bachelor of Science", "Bachelor of Engineering", "Bachelor of Business Administration"],
+            richtig: 2 // Bachelor of Engineering
+        },
+        {
+            frage: "In welcher Sprache wird der Masterstudiengang German Business Culture and International Management (M.A.) überwiegend unterrichtet?",
+            antworten: ["Deutsch", "Englisch", "Französisch", "Spanisch"],
+            richtig: 1 // Englisch
+        },
+        {
+            frage: "Ab welchem Wintersemester gilt die Studienordnung W71b (Betriebswirtschaft) in der Fassung vom 23.01.2024?",
+            antworten: ["WS 2022/23", "WS 2023/24", "WS 2024/25", "WS 2025/26"],
+            richtig: 2 // WS 2024
+        },
+        {
+            frage: "Wie viele ECTS-Credits müssen im Masterstudiengang Management mittelständischer Unternehmen (M.A.) insgesamt erworben werden?",
+            antworten: ["60", "90", "120", "180"],
+            richtig: 1 // 90
+        },
+        {
+            frage: "Welche Prüfungsform ersetzt laut Änderungssatzung im Wahlpflichtmodul W339 „Arbeit und Gesundheit“ die bisherige mündliche Prüfung (MP 20 min)?",
+            antworten: ["Klausur (90 min)", "Hausarbeit", "Projektarbeit", "Portfolioprüfung"],
+            richtig: 0 // Klausur
+        },
+        {
+            frage: "Für welchen Studiengang gilt die Studienordnung W74b in der Fassung vom 23.01.2024?",
+            antworten: ["Betriebswirtschaft", "International Business", "Wirtschaftsingenieurwesen", "German Business Culture and International Management"],
+            richtig: 1 // International Business
+        },
+        {
+            frage: "Wie viele Semester Regelstudienzeit hat der Masterstudiengang German Business Culture and International Management (M.A.)?",
+            antworten: ["2 Semester", "3 Semester", "4 Semester", "5 Semester"],
+            richtig: 2 // 4 Semester
+        },
+        {
+            frage: "Welcher Studiengang hat laut Moduldatenbank die Studiengangsnummer W72b?",
+            antworten: ["Betriebswirtschaft", "International Business", "Wirtschaftsingenieurwesen", "Management mittelständischer Unternehmen"],
+            richtig: 2 // Wirtschaftsingenieurwesen
+        },
+        {
+            frage: "Wie viele ECTS-Credits entfallen im Bachelorstudiengang International Business auf das Praktikum?",
+            antworten: ["12 ECTS", "15 ECTS", "18 ECTS", "21 ECTS"],
+            richtig: 1 // 15
+        },
+        {
+            frage: "Welche Fremdsprache ist im Masterstudiengang German Business Culture and International Management (M.A.) laut Änderungssatzung vom 24.06.2025 im Wahlpflichtbereich „Foreign Language“ unter anderem wählbar?",
+            antworten: ["Spanisch", "Italienisch", "Französisch", "Russisch"],
+            richtig: 2 // Französisch
+        },
+        {
+            frage: "Wie viele Semester Regelstudienzeit hat der Bachelorstudiengang Wirtschaftsingenieurwesen (B.Eng.)?",
+            antworten: ["6 Semester", "7 Semester", "8 Semester", "9 Semester"],
+            richtig: 1 // 7
+        },
+        {
+            frage: "Welcher Masterstudiengang hat laut Studienordnung eine Regelstudienzeit von 3 Semestern?",
+            antworten: ["German Business Culture and International Management", "International Management", "Management mittelständischer Unternehmen", "Wirtschaftsingenieurwesen"],
+            richtig: 1 // International Management
+        },
+        {
+            frage: "Wie hoch ist die Mindestanzahl an ECTS-Credits, die im Bachelorstudiengang Betriebswirtschaft (B.A.) laut Studienordnung für den Studienabschluss erforderlich ist?",
+            antworten: ["180 ECTS", "200 ECTS", "210 ECTS", "240 ECTS"],
+            richtig: 2 // 210
+        }
+    ];
+
+    const quizContainer = document.getElementById('quiz');
+    fragen.forEach((f, index) => {
+        const div = document.createElement('div');
+        div.className = 'frage';
+        div.innerHTML = `<p>${index + 1}. ${f.frage}</p>`;
+        f.antworten.forEach((a, i) => {
+            const label = document.createElement('label');
+            label.innerHTML = `<input type="radio" name="frage${index}" value="${i}"> ${String.fromCharCode(65 + i)}) ${a}`;
+            div.appendChild(label);
+        });
+        quizContainer.appendChild(div);
+    });
+
+    document.getElementById('auswerten').addEventListener('click', function() {
+        let richtig = 0;
+        fragen.forEach((f, index) => {
+            const ausgewaehlt = document.querySelector(`input[name="frage${index}"]:checked`);
+            if (ausgewaehlt && parseInt(ausgewaehlt.value) === f.richtig) {
+                richtig++;
+            }
+        });
+
+        const ergebnisDiv = document.getElementById('ergebnis');
+        const bestanden = richtig >= 8; // mind. 50% von 15 = 7.5 → aufgerundet 8
+
+        if (bestanden) {
+            ergebnisDiv.innerHTML = `🎉 Bestanden! Du hast ${richtig} von 15 Fragen richtig beantwortet (${Math.round(richtig/15*100)} %).`;
+            ergebnisDiv.style.color = 'green';
+            starteFeuerwerk();
+        } else {
+            ergebnisDiv.innerHTML = `❌ Leider nicht bestanden. Du hast ${richtig} von 15 Fragen richtig beantwortet (${Math.round(richtig/15*100)} %). Mindestens 8 richtige Antworten sind erforderlich.`;
+            ergebnisDiv.style.color = 'red';
+        }
+    });
+
+    // 🎆 Feuerwerk-Animation
+    function starteFeuerwerk() {
+        const canvas = document.getElementById('feuerwerk');
+        canvas.style.display = 'block';
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let partikel = [];
+        const farben = ['#FFD700', '#FF4500', '#FF69B4', '#00CED1', '#9370DB', '#32CD32', '#FF1493'];
+
+        function Partikel(x, y) {
+            this.x = x;
+            this.y = y;
+            this.vx = (Math.random() - 0.5) * 8;
+            this.vy = (Math.random() - 0.5) * 8 - 2;
+            this.leben = 1;
+            this.farbe = farben[Math.floor(Math.random() * farben.length)];
+            this.groesse = Math.random() * 3 + 1;
+        }
+
+        Partikel.prototype.update = function() {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.vy += 0.05; // Schwerkraft
+            this.leben -= 0.015;
+        };
+
+        Partikel.prototype.zeichnen = function() {
+            ctx.globalAlpha = Math.max(this.leben, 0);
+            ctx.fillStyle = this.farbe;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.groesse, 0, Math.PI * 2);
+            ctx.fill();
+        };
+
+        function explosion(x, y) {
+            for (let i = 0; i < 60; i++) {
+                partikel.push(new Partikel(x, y));
+            }
+        }
+
+        // Mehrere Explosionen
+        for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+                explosion(
+                    canvas.width * (0.2 + Math.random() * 0.6),
+                    canvas.height * (0.2 + Math.random() * 0.4)
+                );
+            }, i * 400);
+        }
+
+        function animiere() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            partikel = partikel.filter(p => p.leben > 0);
+            partikel.forEach(p => {
+                p.update();
+                p.zeichnen();
+            });
+            if (partikel.length > 0) {
+                requestAnimationFrame(animiere);
+            } else {
+                canvas.style.display = 'none';
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+        animiere();
+    }
+</script>
+
+</body>
+</html>
